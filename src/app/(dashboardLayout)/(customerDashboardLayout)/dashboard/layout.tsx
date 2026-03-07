@@ -3,10 +3,5 @@ export default function CustomerDashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <>
-      Customer Dashboard Layout
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

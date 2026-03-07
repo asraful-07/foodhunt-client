@@ -3,10 +3,5 @@ export default function ProviderDashboardLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  return (
-    <>
-      Provider Dashboard Layout
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }
