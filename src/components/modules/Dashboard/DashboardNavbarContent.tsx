@@ -39,11 +39,19 @@ const DashboardNavbarContent = ({
   }, []);
 
   return (
-    <div className="flex items-center gap-4 w-full px-4 py-3 border-b bg-background">
-      {/* Mobile Menu Toggle Button And Menu */}
+    /*
+      KEY FIX for zoom misalignment:
+      - Remove any left border or left padding that was trying to "match" the sidebar width.
+      - The navbar sits inside the right flex column, so it naturally starts where the
+        sidebar ends — no manual width math needed.
+      - Use `h-16` (fixed height) so it always matches the sidebar logo row at all zoom levels.
+      - `border-b` draws one clean line across the full width of this column.
+    */
+    <header className="flex h-16 shrink-0 items-center gap-4 w-full px-4 border-b bg-background">
+      {/* Mobile Menu Toggle */}
       <Sheet open={isOpen && isMobile} onOpenChange={setIsOpen}>
         <SheetTrigger asChild className="md:hidden">
-          <Button variant={"outline"} size={"icon"}>
+          <Button variant="outline" size="icon">
             <Menu className="h-5 w-5" />
           </Button>
         </SheetTrigger>
@@ -57,9 +65,9 @@ const DashboardNavbarContent = ({
         </SheetContent>
       </Sheet>
 
-      {/* Search Component */}
+      {/* Search */}
       <div className="flex-1 flex items-center">
-        <div className="relative w-full hidden sm:block">
+        <div className="relative w-full hidden sm:block max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input type="text" placeholder="Search..." className="pl-9 pr-4" />
         </div>
@@ -67,13 +75,10 @@ const DashboardNavbarContent = ({
 
       {/* Right Side Actions */}
       <div className="flex items-center gap-2">
-        {/* Notification */}
         <NotificationDropdown />
-
-        {/* User Dropdown  */}
         <UserDropdown userInfo={userInfo} />
       </div>
-    </div>
+    </header>
   );
 };
 

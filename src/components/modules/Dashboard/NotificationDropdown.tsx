@@ -5,20 +5,25 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatDistanceToNow } from "date-fns";
-import { Bell, Calendar, CheckCircle, Clock, UserPlus } from "lucide-react";
+import {
+  Bell,
+  Calendar,
+  CheckCircle,
+  Clock,
+  UserPlus,
+  Sparkles,
+} from "lucide-react";
+import { useState } from "react";
 
 interface Notification {
   id: string;
   title: string;
   message: string;
-  type: "appointment" | "schedule" | "system" | "user";
+  type: "order" | "delivery" | "system" | "user";
   timestamp: Date;
   read: boolean;
 }
@@ -26,135 +31,244 @@ interface Notification {
 const MOCK_NOTIFICATIONS: Notification[] = [
   {
     id: "1",
-    title: "New Appointment Scheduled",
-    message:
-      "You have a new appointment scheduled with John Doe on 2024-06-15 at 10:00 AM.",
-    type: "appointment",
-    timestamp: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
+    title: "Order Confirmed",
+    message: "Your order #1023 has been confirmed and will be prepared soon.",
+    type: "order",
+    timestamp: new Date(Date.now() - 1000 * 60 * 15),
     read: false,
   },
-
   {
     id: "2",
-    title: "Schedule Updated",
-    message: "Your schedule has been updated for the week of 2024-06-17.",
-    type: "schedule",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
+    title: "Delivery Update",
+    message: "Your delivery is on the way and will reach you in 20 mins.",
+    type: "delivery",
+    timestamp: new Date(Date.now() - 1000 * 60 * 60),
     read: true,
   },
-
   {
     id: "3",
-    title: "System Maintenance",
+    title: "System Notice",
     message:
-      "The system will undergo maintenance on 2024-06-20 from 1:00 AM to 3:00 AM.",
+      "Scheduled maintenance at 2:00 AM tomorrow. Minimal downtime expected.",
     type: "system",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24), // 1 day ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
     read: false,
   },
-
   {
     id: "4",
-    title: "New User Registered",
-    message: "A new user, Jane Smith, has registered on the platform.",
+    title: "New User Joined",
+    message: "Welcome Jane Smith to the BD Healthcare community!",
     type: "user",
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48), // 2 days ago
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 36),
+    read: true,
+  },
+  {
+    id: "5",
+    title: "System Notice",
+    message: "Database backup completed successfully.",
+    type: "system",
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48),
+    read: false,
+  },
+  {
+    id: "6",
+    title: "New User Joined",
+    message: "Welcome Dr. Robert Chen to the platform!",
+    type: "user",
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 50),
     read: true,
   },
 ];
 
-const getNotificationIcon = (type: Notification["type"]) => {
-  switch (type) {
-    case "appointment":
-      return <Calendar className="h-4 w-4 text-blue-600" />;
-    case "schedule":
-      return <Clock className="h-4 w-4 text-amber-600" />;
-    case "system":
-      return <CheckCircle className="h-4 w-4 text-purple-600" />;
-    case "user":
-      return <UserPlus className="h-4 w-4 text-green-600" />;
-    default:
-      return <Bell className="h-4 w-4 text-gray-600" />;
-  }
+const TYPE_CONFIG = {
+  order: {
+    icon: Calendar,
+    color: "text-amber-500",
+    bg: "bg-amber-500/10",
+    ring: "ring-amber-500/20",
+    dot: "bg-amber-500",
+    label: "Order",
+  },
+  delivery: {
+    icon: Clock,
+    color: "text-emerald-500",
+    bg: "bg-emerald-500/10",
+    ring: "ring-emerald-500/20",
+    dot: "bg-emerald-500",
+    label: "Delivery",
+  },
+  system: {
+    icon: CheckCircle,
+    color: "text-violet-500",
+    bg: "bg-violet-500/10",
+    ring: "ring-violet-500/20",
+    dot: "bg-violet-500",
+    label: "System",
+  },
+  user: {
+    icon: UserPlus,
+    color: "text-sky-500",
+    bg: "bg-sky-500/10",
+    ring: "ring-sky-500/20",
+    dot: "bg-sky-500",
+    label: "User",
+  },
 };
 
 const NotificationDropdown = () => {
-  const unreadCount = MOCK_NOTIFICATIONS.filter(
-    (notification) => !notification.read,
-  ).length;
+  const [notifications, setNotifications] = useState(MOCK_NOTIFICATIONS);
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const markAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const markOneRead = (id: string) => {
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+    );
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant={"outline"} size={"icon"} className="relative">
-          <Bell className="h-5 w-5" />
-          <Badge
-            className="absolute -top-1 -right-1 h-5 w-5 rounded full p-0 flex items-center justify-center"
-            variant={"destructive"}
-          >
-            <span className="text-[10px">
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative h-9 w-9 rounded-xl border-border/60 bg-background hover:bg-accent transition-all duration-200"
+        >
+          <Bell className="h-4 w-4" />
+          {unreadCount > 0 && (
+            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-rose-500 flex items-center justify-center text-[9px] font-bold text-white ring-2 ring-background">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
-          </Badge>
+          )}
         </Button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align={"end"} className="w-80">
-        <DropdownMenuLabel className="flex items-center justify-between">
-          <span>Notifications</span>
-          {unreadCount > 0 && (
-            <Badge variant={"secondary"} className="ml-2">
-              {unreadCount} new
-            </Badge>
-          )}
-        </DropdownMenuLabel>
-
-        <DropdownMenuSeparator />
-
-        <ScrollArea className="h-75">
-          {MOCK_NOTIFICATIONS.length > 0 ? (
-            MOCK_NOTIFICATIONS.map((notification) => (
-              <DropdownMenuItem
-                key={notification.id}
-                className="flex flex-col items-start gap-2 p-3 cursor-pointer"
+      <DropdownMenuContent
+        align="end"
+        sideOffset={8}
+        className="w-[380px] p-0 rounded-2xl border border-border/60 shadow-xl shadow-black/10 overflow-hidden"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3.5 border-b border-border/60 bg-muted/30">
+          <div className="flex items-center gap-2">
+            <div className="h-7 w-7 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Bell className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <span className="font-semibold text-sm text-foreground">
+              Notifications
+            </span>
+            {unreadCount > 0 && (
+              <Badge
+                variant="secondary"
+                className="h-5 px-1.5 text-[10px] font-semibold bg-primary/10 text-primary border-0 rounded-full"
               >
-                <div className="mt-0.5">
-                  {getNotificationIcon(notification.type)}
-                </div>
+                {unreadCount} new
+              </Badge>
+            )}
+          </div>
 
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-medium leading-none">
-                      {notification.title}
-                    </p>
-                    {!notification.read && (
-                      <div className="h-2 w-2 rounded-full bg-blue-600" />
-                    )}
-                  </div>
+          {unreadCount > 0 && (
+            <button
+              onClick={markAllRead}
+              className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
+              <Sparkles className="h-3 w-3" />
+              Mark all read
+            </button>
+          )}
+        </div>
 
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {notification.message}
-                  </p>
+        {/* Notification List */}
+        <ScrollArea className="h-[340px]">
+          {notifications.length > 0 ? (
+            <div className="p-2 space-y-0.5">
+              {notifications.map((notification) => {
+                const config = TYPE_CONFIG[notification.type];
+                const Icon = config.icon;
 
-                  <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(notification.timestamp, {
-                      addSuffix: true,
-                    })}
-                  </p>
-                </div>
-              </DropdownMenuItem>
-            ))
+                return (
+                  <button
+                    key={notification.id}
+                    onClick={() => markOneRead(notification.id)}
+                    className={`w-full flex items-start gap-3 p-3 rounded-xl text-left transition-all duration-150 group
+                      ${
+                        !notification.read
+                          ? "bg-primary/5 hover:bg-primary/8"
+                          : "hover:bg-muted/60"
+                      }`}
+                  >
+                    {/* Icon */}
+                    <div
+                      className={`mt-0.5 h-8 w-8 rounded-xl ${config.bg} ring-1 ${config.ring} flex items-center justify-center shrink-0`}
+                    >
+                      <Icon className={`h-4 w-4 ${config.color}`} />
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0 space-y-0.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <p
+                          className={`text-sm font-medium leading-tight ${!notification.read ? "text-foreground" : "text-foreground/80"}`}
+                        >
+                          {notification.title}
+                        </p>
+                        <div className="flex items-center gap-1.5 shrink-0 mt-0.5">
+                          {!notification.read && (
+                            <span
+                              className={`h-1.5 w-1.5 rounded-full ${config.dot} shrink-0`}
+                            />
+                          )}
+                        </div>
+                      </div>
+
+                      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                        {notification.message}
+                      </p>
+
+                      <div className="flex items-center gap-2 pt-0.5">
+                        <span
+                          className={`text-[10px] font-medium px-1.5 py-0.5 rounded-md ${config.bg} ${config.color}`}
+                        >
+                          {config.label}
+                        </span>
+                        <span className="text-[10px] text-muted-foreground/70">
+                          {formatDistanceToNow(notification.timestamp, {
+                            addSuffix: true,
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           ) : (
-            <div className="p-6 text-center text-sm text-muted-foreground">
-              No notifications
+            <div className="flex flex-col items-center justify-center h-full gap-3 py-12">
+              <div className="h-12 w-12 rounded-2xl bg-muted flex items-center justify-center">
+                <Bell className="h-5 w-5 text-muted-foreground/50" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-foreground/70">
+                  All caught up!
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  No new notifications
+                </p>
+              </div>
             </div>
           )}
         </ScrollArea>
 
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem className="text-center justify-center cursor-pointer">
-          View All Notifications
-        </DropdownMenuItem>
+        {/* Footer */}
+        <div className="border-t border-border/60 bg-muted/20">
+          <button className="w-full px-4 py-3 text-xs font-semibold text-primary hover:text-primary/80 hover:bg-primary/5 transition-all duration-150 flex items-center justify-center gap-1.5">
+            View all notifications
+            <span className="text-muted-foreground font-normal">→</span>
+          </button>
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
