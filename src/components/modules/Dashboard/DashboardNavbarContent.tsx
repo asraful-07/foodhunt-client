@@ -39,14 +39,6 @@ const DashboardNavbarContent = ({
   }, []);
 
   return (
-    /*
-      KEY FIX for zoom misalignment:
-      - Remove any left border or left padding that was trying to "match" the sidebar width.
-      - The navbar sits inside the right flex column, so it naturally starts where the
-        sidebar ends — no manual width math needed.
-      - Use `h-16` (fixed height) so it always matches the sidebar logo row at all zoom levels.
-      - `border-b` draws one clean line across the full width of this column.
-    */
     <header className="flex h-16 shrink-0 items-center gap-4 w-full px-4 border-b bg-background">
       {/* Mobile Menu Toggle */}
       <Sheet open={isOpen && isMobile} onOpenChange={setIsOpen}>

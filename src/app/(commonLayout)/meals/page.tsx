@@ -6,6 +6,8 @@ import {
 } from "@tanstack/react-query";
 import { getMeals } from "./_action";
 
+export const dynamic = "force-dynamic";
+
 const ConsultationPage = async () => {
   const queryClient = new QueryClient();
 

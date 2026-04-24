@@ -1,9 +1,29 @@
 "use server";
 
-import { httpClient } from "@/lib/axios/httpClient";
+const BASE_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+if (!BASE_API_URL) {
+  throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
+}
 
 export const getMeals = async () => {
-  const meals = await httpClient.get("/meal");
-  console.log(meals, "server");
-  return meals;
+  try {
+    const response = await fetch(`${BASE_API_URL}/meal`, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch meals");
+    }
+
+    const data = await response.json();
+    console.log(data, "server");
+    return data;
+  } catch (error) {
+    console.error("Error fetching meals:", error);
+    throw error;
+  }
 };

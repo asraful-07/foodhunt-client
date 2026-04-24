@@ -88,22 +88,17 @@ const getAdminNavItems: NavSection[] = [
 
 const getProviderNavItems: NavSection[] = [
   {
-    title: "Provider Panel",
-    items: [
-      {
-        title: "Provider Dashboard",
-        href: "/provider/stats",
-        icon: "LayoutDashboard",
-      },
-    ],
-  },
-  {
     title: "Meal Management",
     items: [
       {
         title: "Add Meal",
-        href: "/provider/add-meal",
+        href: "/provider/add-meals",
         icon: "Plus",
+      },
+      {
+        title: "My Meals",
+        href: "/provider/dashboard/my-meals",
+        icon: "LayoutDashboard",
       },
     ],
   },

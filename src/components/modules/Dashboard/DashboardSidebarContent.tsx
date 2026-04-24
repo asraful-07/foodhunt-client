@@ -7,7 +7,7 @@ import { getIconComponent } from "@/lib/iconMapper";
 import { cn } from "@/lib/utils";
 import { NavSection } from "@/types/dashboard.types";
 import { UserInfo } from "@/types/user.types";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { PanelLeftOpen, PanelLeftClose } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
@@ -48,14 +48,14 @@ const DashboardSidebarContent = ({
           size="icon"
           onClick={() => setCollapsed((prev) => !prev)}
           className={cn(
-            "h-8 w-8 rounded-full border shrink-0",
+            "h-8 w-8 rounded-full border shrink-0 transition-all hover:bg-accent",
             collapsed && "mx-auto",
           )}
         >
           {collapsed ? (
-            <ChevronRight className="h-4 w-4" />
+            <PanelLeftOpen className="h-4 w-4" />
           ) : (
-            <ChevronLeft className="h-4 w-4" />
+            <PanelLeftClose className="h-4 w-4" />
           )}
         </Button>
       </div>

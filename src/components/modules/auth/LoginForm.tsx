@@ -168,7 +168,7 @@ const LoginForm = ({ redirectPath }: LoginFormProps) => {
           onClick={() => {
             const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
             //TODO redirect path after login in frontend
-            window.location.href = `${baseUrl}/auth/login/google`;
+            window.location.href = `${baseUrl}/api/v1/auth/login/google`;
           }}
         >
           <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">

@@ -6,12 +6,17 @@ import {
   isValidRedirectForRole,
   UserRole,
 } from "@/lib/authUtils";
-import { httpClient } from "@/lib/axios/httpClient";
 import { setTokenInCookies } from "@/lib/tokenUtils";
 import { ApiErrorResponse } from "@/types/api.types";
 import { ILoginResponse } from "@/types/auth.types";
 import { ILoginPayload, loginZodSchema } from "@/zod/auth.validation";
 import { redirect } from "next/navigation";
+
+const BASE_API_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+if (!BASE_API_URL) {
+  throw new Error("NEXT_PUBLIC_API_BASE_URL is not defined");
+}
 
 export const loginAction = async (
   payload: ILoginPayload,
@@ -28,12 +33,24 @@ export const loginAction = async (
   }
 
   try {
-    const response = await httpClient.post<ILoginResponse>(
-      "/auth/login",
-      parsedPayload.data,
-    );
+    const response = await fetch(`${BASE_API_URL}/api/v1/auth/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(parsedPayload.data),
+    });
 
-    const { accessToken, refreshToken, token, user } = response.data;
+    if (!response.ok) {
+      const errorData = await response.json();
+      return {
+        success: false,
+        message: errorData.message || "Login failed",
+      };
+    }
+
+    const { data } = await response.json();
+    const { accessToken, refreshToken, token, user } = data;
     const { role } = user;
 
     // Set Tokens

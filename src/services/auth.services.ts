@@ -13,7 +13,7 @@ export async function getNewTokensWithRefreshToken(
   refreshToken: string,
 ): Promise<boolean> {
   try {
-    const res = await fetch(`${BASE_API_URL}/auth/refresh-token`, {
+    const res = await fetch(`${BASE_API_URL}/api/v1/auth/refresh-token`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -58,7 +58,7 @@ export async function getUserInfo() {
       return null;
     }
 
-    const res = await fetch(`${BASE_API_URL}/auth/me`, {
+    const res = await fetch(`${BASE_API_URL}/api/v1/auth/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
